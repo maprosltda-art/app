@@ -37,18 +37,25 @@ const Organizacao: React.FC = () => {
   }, [user]);
 
   const loadTasks = async () => {
+    if (!user?.id) return;
+    
     try {
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) throw new Error(error.message);
       setTasks(data || []);
     } catch (error) {
       console.error('Error loading tasks:', error);
-      toast.error('Erro ao carregar tarefas');
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      if (errorMessage.includes('foreign key constraint')) {
+        toast.error('Erro de autenticação. Faça logout e login novamente.');
+      } else {
+        toast.error(`Erro ao carregar tarefas: ${errorMessage}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -56,6 +63,16 @@ const Organizacao: React.FC = () => {
 
   const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!user?.id) {
+      toast.error('Usuário não autenticado. Faça login novamente.');
+      return;
+    }
+
+    if (!newTask.title.trim()) {
+      toast.error('Título da tarefa é obrigatório');
+      return;
+    }
     
     try {
       const { error } = await supabase
@@ -66,7 +83,7 @@ const Organizacao: React.FC = () => {
           completed: false,
         }]);
 
-      if (error) throw error;
+      if (error) throw new Error(error.message);
 
       toast.success('Tarefa adicionada com sucesso!');
       setNewTask({ title: '', description: '', room: 'sala', frequency: 'daily' });
@@ -74,7 +91,12 @@ const Organizacao: React.FC = () => {
       loadTasks();
     } catch (error) {
       console.error('Error adding task:', error);
-      toast.error('Erro ao adicionar tarefa');
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      if (errorMessage.includes('foreign key constraint')) {
+        toast.error('Erro de autenticação. Faça logout e login novamente.');
+      } else {
+        toast.error(`Erro ao adicionar tarefa: ${errorMessage}`);
+      }
     }
   };
 
@@ -88,13 +110,14 @@ const Organizacao: React.FC = () => {
         })
         .eq('id', taskId);
 
-      if (error) throw error;
+      if (error) throw new Error(error.message);
 
       toast.success(!completed ? 'Tarefa concluída!' : 'Tarefa reaberta');
       loadTasks();
     } catch (error) {
       console.error('Error updating task:', error);
-      toast.error('Erro ao atualizar tarefa');
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      toast.error(`Erro ao atualizar tarefa: ${errorMessage}`);
     }
   };
 
@@ -107,13 +130,14 @@ const Organizacao: React.FC = () => {
         .delete()
         .eq('id', taskId);
 
-      if (error) throw error;
+      if (error) throw new Error(error.message);
 
       toast.success('Tarefa excluída com sucesso!');
       loadTasks();
     } catch (error) {
       console.error('Error deleting task:', error);
-      toast.error('Erro ao excluir tarefa');
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      toast.error(`Erro ao excluir tarefa: ${errorMessage}`);
     }
   };
 
