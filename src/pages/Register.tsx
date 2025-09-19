@@ -29,15 +29,29 @@ const Register: React.FC = () => {
     setLoading(true);
 
     try {
-      const { error } = await signUp(email, password, name);
+      const { data, error } = await signUp(email, password, name);
       if (error) {
-        toast.error('Erro ao criar conta: ' + error.message);
+        console.error('Signup error:', error);
+        if (error.message.includes('User already registered')) {
+          toast.error('Este e-mail já está cadastrado. Tente fazer login.');
+        } else if (error.message.includes('Invalid email')) {
+          toast.error('E-mail inválido. Verifique o formato do e-mail.');
+        } else if (error.message.includes('Password')) {
+          toast.error('Senha muito fraca. Use pelo menos 6 caracteres.');
+        } else {
+          toast.error('Erro ao criar conta: ' + error.message);
+        }
       } else {
-        toast.success('Conta criada com sucesso!');
-        navigate('/');
+        if (data.user) {
+          toast.success('Conta criada com sucesso! Você já pode usar o aplicativo.');
+          navigate('/');
+        } else {
+          toast.error('Erro inesperado ao criar conta. Tente novamente.');
+        }
       }
     } catch (error) {
-      toast.error('Erro inesperado');
+      console.error('Unexpected error:', error);
+      toast.error('Erro inesperado ao criar conta. Verifique sua conexão e tente novamente.');
     } finally {
       setLoading(false);
     }

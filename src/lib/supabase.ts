@@ -17,8 +17,35 @@ export const signUp = async (email: string, password: string, name: string) => {
       data: {
         name,
       },
+      emailRedirectTo: undefined,
     },
   });
+  
+  // Se o usuário foi criado com sucesso, criar o perfil na tabela users
+  if (data.user && !error) {
+    try {
+      const { error: profileError } = await supabase
+        .from('users')
+        .insert([
+          {
+            id: data.user.id,
+            email: data.user.email!,
+            name: name,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          }
+        ]);
+      
+      if (profileError) {
+        console.error('Error creating user profile:', profileError);
+        // Não retornamos erro aqui pois o usuário foi criado com sucesso
+        // O perfil pode ser criado posteriormente
+      }
+    } catch (profileError) {
+      console.error('Error creating user profile:', profileError);
+    }
+  }
+  
   return { data, error };
 };
 
