@@ -38,11 +38,26 @@ export const signUp = async (email: string, password: string, name: string) => {
       
       if (profileError) {
         console.error('Error creating user profile:', profileError);
-        // Não retornamos erro aqui pois o usuário foi criado com sucesso
-        // O perfil pode ser criado posteriormente
+        // Se falhar ao criar o perfil, retornar erro para evitar problemas futuros
+        return { 
+          data: null, 
+          error: { 
+            message: 'Falha ao criar perfil do usuário. Tente novamente.',
+            name: 'ProfileCreationError',
+            status: 500
+          } 
+        };
       }
     } catch (profileError) {
       console.error('Error creating user profile:', profileError);
+      return { 
+        data: null, 
+        error: { 
+          message: 'Erro inesperado ao criar perfil. Tente novamente.',
+          name: 'ProfileCreationError',
+          status: 500
+        } 
+      };
     }
   }
   
