@@ -41,7 +41,7 @@ const Perfil: React.FC = () => {
     if (!file) return;
 
     // For now, we'll just show a placeholder since file upload requires additional setup
-    toast.info('Funcionalidade de upload de imagem será implementada em breve');
+    toast('Funcionalidade de upload de imagem será implementada em breve');
   };
 
   return (
