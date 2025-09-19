@@ -51,10 +51,15 @@ const Planejamento: React.FC = () => {
     e.preventDefault();
     
     try {
+      // Ensure the date is stored correctly without timezone conversion
+      const eventDate = new Date(newEvent.date + 'T00:00:00');
+      const formattedDate = eventDate.toISOString().split('T')[0];
+      
       const { error } = await supabase
         .from('events')
         .insert([{
           ...newEvent,
+          date: formattedDate,
           user_id: user?.id,
         }]);
 
