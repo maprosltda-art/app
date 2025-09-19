@@ -12,6 +12,7 @@ const Planejamento: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showEventDetails, setShowEventDetails] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [newEvent, setNewEvent] = useState({
@@ -98,6 +99,10 @@ const Planejamento: React.FC = () => {
     return events.filter(event => isSameDay(new Date(event.date), date));
   };
 
+  const getSelectedDateEvents = () => {
+    return getEventsForDate(selectedDate);
+  };
+
   const getUpcomingEvents = () => {
     const today = new Date();
     return events
@@ -110,6 +115,14 @@ const Planejamento: React.FC = () => {
   const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
   const upcomingEvents = getUpcomingEvents();
+
+  const handleDayClick = (day: Date) => {
+    setSelectedDate(day);
+    const dayEvents = getEventsForDate(day);
+    if (dayEvents.length > 0) {
+      setShowEventDetails(true);
+    }
+  };
 
   if (loading) {
     return (
@@ -268,7 +281,7 @@ const Planejamento: React.FC = () => {
                   className={`min-h-[80px] p-2 border border-gray-100 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${
                     isCurrentDay ? 'bg-pink-50 border-pink-200' : ''
                   }`}
-                  onClick={() => setSelectedDate(day)}
+                  onClick={() => handleDayClick(day)}
                 >
                   <div className={`text-sm font-medium mb-1 ${
                     isCurrentDay ? 'text-pink-600' : 'text-gray-900'
@@ -295,6 +308,65 @@ const Planejamento: React.FC = () => {
             })}
           </div>
         </div>
+
+        {/* Event Details Modal */}
+        {showEventDetails && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-6 w-full max-w-md mx-4 max-h-[80vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Eventos - {format(selectedDate, 'dd/MM/yyyy', { locale: ptBR })}
+                </h2>
+                <button
+                  onClick={() => setShowEventDetails(false)}
+                  className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="space-y-3">
+                {getSelectedDateEvents().map(event => (
+                  <div key={event.id} className="p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h4 className="font-medium text-gray-900 mb-2">{event.title}</h4>
+                        {event.description && (
+                          <p className="text-sm text-gray-600 mb-3">{event.description}</p>
+                        )}
+                        <div className="flex items-center space-x-4 text-sm text-gray-500">
+                          <div className="flex items-center space-x-1">
+                            <Clock className="w-4 h-4" />
+                            <span>{event.time}</span>
+                          </div>
+                          {event.assigned_to && (
+                            <div className="flex items-center space-x-1">
+                              <User className="w-4 h-4" />
+                              <span>{event.assigned_to}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => deleteEvent(event.id)}
+                        className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 flex justify-end">
+                <button
+                  onClick={() => setShowEventDetails(false)}
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  Fechar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Upcoming Events */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
