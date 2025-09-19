@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { CheckSquare, DollarSign, Calendar, Heart, TrendingUp, Target, Clock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { UserStats } from '../types';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState<UserStats>({
     totalTasks: 0,
     completedTasks: 0,
@@ -77,6 +79,22 @@ const Dashboard: React.FC = () => {
   };
 
   const progressPercentage = stats.totalTasks > 0 ? (stats.completedTasks / stats.totalTasks) * 100 : 0;
+
+  const handleQuickAction = (action: string) => {
+    switch (action) {
+      case 'task':
+        navigate('/organizacao');
+        break;
+      case 'transaction':
+        navigate('/financas');
+        break;
+      case 'event':
+        navigate('/planejamento');
+        break;
+      default:
+        break;
+    }
+  };
 
   const cards = [
     {
@@ -178,21 +196,30 @@ const Dashboard: React.FC = () => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Ações Rápidas</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="flex items-center space-x-3 p-4 bg-pink-50 rounded-lg hover:bg-pink-100 transition-colors">
+          <button 
+            onClick={() => handleQuickAction('task')}
+            className="flex items-center space-x-3 p-4 bg-pink-50 rounded-lg hover:bg-pink-100 transition-colors"
+          >
             <CheckSquare className="w-6 h-6 text-pink-600" />
             <div className="text-left">
               <p className="font-medium text-gray-900">Nova Tarefa</p>
               <p className="text-sm text-gray-600">Adicionar tarefa de organização</p>
             </div>
           </button>
-          <button className="flex items-center space-x-3 p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+          <button 
+            onClick={() => handleQuickAction('transaction')}
+            className="flex items-center space-x-3 p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+          >
             <DollarSign className="w-6 h-6 text-green-600" />
             <div className="text-left">
               <p className="font-medium text-gray-900">Nova Transação</p>
               <p className="text-sm text-gray-600">Registrar receita ou despesa</p>
             </div>
           </button>
-          <button className="flex items-center space-x-3 p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+          <button 
+            onClick={() => handleQuickAction('event')}
+            className="flex items-center space-x-3 p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+          >
             <Calendar className="w-6 h-6 text-blue-600" />
             <div className="text-left">
               <p className="font-medium text-gray-900">Novo Evento</p>
