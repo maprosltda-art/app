@@ -105,9 +105,31 @@ const Planejamento: React.FC = () => {
 
   const getUpcomingEvents = () => {
     const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
     return events
-      .filter(event => new Date(event.date) >= today)
+      .filter(event => {
+        const eventDate = new Date(event.date);
+        eventDate.setHours(0, 0, 0, 0);
+        return eventDate >= today;
+      })
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
       .slice(0, 5);
+  };
+
+  const getNextUpcomingEvent = () => {
+    const today = new Date();
+    const now = new Date();
+    
+    return events
+      .filter(event => {
+        const eventDateTime = new Date(`${event.date}T${event.time}`);
+        return eventDateTime >= now;
+      })
+      .sort((a, b) => {
+        const dateTimeA = new Date(`${a.date}T${a.time}`);
+        const dateTimeB = new Date(`${b.date}T${b.time}`);
+        return dateTimeA.getTime() - dateTimeB.getTime();
+      })[0];
   };
 
   const monthStart = startOfMonth(currentMonth);
@@ -115,6 +137,7 @@ const Planejamento: React.FC = () => {
   const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
   const upcomingEvents = getUpcomingEvents();
+  const nextEvent = getNextUpcomingEvent();
 
   const handleDayClick = (day: Date) => {
     setSelectedDate(day);
@@ -371,6 +394,37 @@ const Planejamento: React.FC = () => {
         {/* Upcoming Events */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Próximos Eventos</h2>
+          
+          {/* Next Upcoming Event Highlight */}
+          {nextEvent && (
+            <div className="mb-6 p-4 bg-gradient-to-r from-pink-50 to-pink-100 border border-pink-200 rounded-lg">
+              <div className="flex items-center space-x-2 mb-2">
+                <div className="w-3 h-3 bg-pink-500 rounded-full animate-pulse"></div>
+                <span className="text-sm font-medium text-pink-700">Próximo Evento</span>
+              </div>
+              <h4 className="font-semibold text-gray-900 mb-1">{nextEvent.title}</h4>
+              {nextEvent.description && (
+                <p className="text-sm text-gray-600 mb-2">{nextEvent.description}</p>
+              )}
+              <div className="flex items-center space-x-4 text-sm text-pink-600">
+                <div className="flex items-center space-x-1">
+                  <Calendar className="w-4 h-4" />
+                  <span>{new Date(nextEvent.date).toLocaleDateString('pt-BR')}</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Clock className="w-4 h-4" />
+                  <span>{nextEvent.time}</span>
+                </div>
+              </div>
+              {nextEvent.assigned_to && (
+                <div className="flex items-center space-x-1 mt-1 text-sm text-pink-600">
+                  <User className="w-4 h-4" />
+                  <span>{nextEvent.assigned_to}</span>
+                </div>
+              )}
+            </div>
+          )}
+
           {upcomingEvents.length === 0 ? (
             <div className="text-center py-8">
               <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -380,7 +434,11 @@ const Planejamento: React.FC = () => {
           ) : (
             <div className="space-y-3">
               {upcomingEvents.map(event => (
-                <div key={event.id} className="p-4 bg-gray-50 rounded-lg">
+                <div key={event.id} className={`p-4 rounded-lg ${
+                  nextEvent && event.id === nextEvent.id 
+                    ? 'bg-pink-50 border border-pink-200' 
+                    : 'bg-gray-50'
+                }`}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <h4 className="font-medium text-gray-900">{event.title}</h4>
