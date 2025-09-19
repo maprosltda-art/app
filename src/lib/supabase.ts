@@ -21,12 +21,12 @@ export const signUp = async (email: string, password: string, name: string) => {
     },
   });
   
-  // Se o usuário foi criado com sucesso, criar o perfil na tabela users
-  if (data.user && !error) {
+  // Se o usuário foi criado com sucesso ou já existe, garantir que o perfil existe na tabela users
+  if (data.user && (!error || error.message === 'User already registered')) {
     try {
       const { error: profileError } = await supabase
         .from('users')
-        .insert([
+        .upsert([
           {
             id: data.user.id,
             email: data.user.email!,
@@ -34,11 +34,12 @@ export const signUp = async (email: string, password: string, name: string) => {
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           }
-        ]);
+        ], {
+          onConflict: 'id'
+        });
       
       if (profileError) {
         console.error('Error creating user profile:', profileError);
-        // Se falhar ao criar o perfil, retornar erro para evitar problemas futuros
         return { 
           data: null, 
           error: { 
@@ -48,6 +49,12 @@ export const signUp = async (email: string, password: string, name: string) => {
           } 
         };
       }
+      
+      // Se o usuário já existia, retornar o erro original do auth
+      if (error && error.message === 'User already registered') {
+        return { data: null, error };
+      }
+      
     } catch (profileError) {
       console.error('Error creating user profile:', profileError);
       return { 
