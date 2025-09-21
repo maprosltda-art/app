@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, CheckSquare, DollarSign, Calendar, Heart, User, LogOut } from 'lucide-react';
+import { Home, CheckSquare, DollarSign, Calendar, Heart, User, LogOut, Menu, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { signOut } from '../lib/supabase';
 import toast from 'react-hot-toast';
@@ -9,6 +9,7 @@ const Layout: React.FC = () => {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
   const handleSignOut = async () => {
     const { error } = await signOut();
@@ -55,9 +56,39 @@ const Layout: React.FC = () => {
       </header>
 
       <div className="flex">
+        {/* Menu Button */}
+        <div className="fixed top-4 left-4 z-50">
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="w-10 h-10 bg-white shadow-lg rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200"
+          >
+            {sidebarOpen ? (
+              <X className="w-5 h-5 text-gray-600" />
+            ) : (
+              <Menu className="w-5 h-5 text-gray-600" />
+            )}
+          </button>
+        </div>
+
+        {/* Sidebar Overlay */}
+        {sidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
         {/* Sidebar */}
-        <nav className="w-64 bg-white shadow-sm min-h-screen border-r border-pink-100">
-          <div className="p-4">
+        <nav className={`fixed left-0 top-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-50 ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}>
+          <div className="p-4 pt-16">
+            <div className="flex items-center space-x-3 mb-6 px-4">
+              <div className="w-8 h-8 bg-gradient-to-r from-pink-400 to-pink-600 rounded-lg flex items-center justify-center">
+                <Home className="w-5 h-5 text-white" />
+              </div>
+              <h2 className="text-lg font-bold text-gray-900">Meu Lar</h2>
+            </div>
             <ul className="space-y-2">
               {menuItems.map((item) => {
                 const Icon = item.icon;
@@ -66,6 +97,7 @@ const Layout: React.FC = () => {
                   <li key={item.path}>
                     <Link
                       to={item.path}
+                      onClick={() => setSidebarOpen(false)}
                       className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                         isActive
                           ? 'bg-pink-100 text-pink-700 border border-pink-200'
@@ -83,7 +115,7 @@ const Layout: React.FC = () => {
         </nav>
 
         {/* Main Content */}
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-6 pl-6">
           <Outlet />
         </main>
       </div>
