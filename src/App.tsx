@@ -1,4 +1,17 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import Layout from './components/Layout';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import Organizacao from './pages/Organizacao';
+import Financas from './pages/Financas';
+import Planejamento from './pages/Planejamento';
+import BemEstar from './pages/BemEstar';
+import Perfil from './pages/Perfil';
 
 const removeFloating = () => {
 
@@ -19,21 +32,6 @@ removeFloating();
 const observer = new MutationObserver(removeFloating);
 
 observer.observe(document.body, { childList: true, subtree: true });
-
-
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
-import { AuthProvider } from './contexts/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
-import Layout from './components/Layout';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import Organizacao from './pages/Organizacao';
-import Financas from './pages/Financas';
-import Planejamento from './pages/Planejamento';
-import BemEstar from './pages/BemEstar';
-import Perfil from './pages/Perfil';
 
 function App() {
   return (
