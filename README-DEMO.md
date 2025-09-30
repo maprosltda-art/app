@@ -5,6 +5,8 @@
 **Email:** `demo@larorganizado.com`  
 **Senha:** `demo123456`
 
+> ⚠️ **IMPORTANTE:** Se o usuário não existir no sistema de autenticação, você precisará criar uma conta com essas credenciais através da tela de registro do aplicativo.
+
 ## 👤 Perfil do Usuário Demo
 
 **Nome:** Maria Silva  
@@ -89,10 +91,16 @@ O aplicativo mostra um uso realista com dados variados, demonstrando todas as fu
 ## 🚀 Como Testar
 
 1. Acesse: https://connect-to-supabase-72o9.bolt.host
-2. Faça login com as credenciais acima
+2. Faça login com as credenciais acima (ou registre-se se necessário)
 3. Explore todas as seções do aplicativo
 4. Veja os dados pré-carregados em ação
 5. Teste adicionar/editar/excluir itens
+
+## 🔧 Dados Técnicos
+
+- **User ID:** `550e8400-e29b-41d4-a716-446655440000`
+- **Dados inseridos via migração SQL**
+- **Todas as tabelas populadas com dados realistas**
 
 ---
 
