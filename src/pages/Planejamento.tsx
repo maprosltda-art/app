@@ -51,15 +51,11 @@ const Planejamento: React.FC = () => {
     e.preventDefault();
     
     try {
-      // Ensure the date is stored correctly without timezone conversion
-      const eventDate = new Date(newEvent.date + 'T00:00:00');
-      const formattedDate = eventDate.toISOString().split('T')[0];
-      
       const { error } = await supabase
         .from('events')
         .insert([{
           ...newEvent,
-          date: formattedDate,
+          date: newEvent.date, // Use the date directly as entered by user
           user_id: user?.id,
         }]);
 
@@ -101,7 +97,11 @@ const Planejamento: React.FC = () => {
   };
 
   const getEventsForDate = (date: Date) => {
-    return events.filter(event => isSameDay(new Date(event.date), date));
+    return events.filter(event => {
+      // Create date without timezone conversion
+      const eventDate = new Date(event.date + 'T00:00:00');
+      return isSameDay(eventDate, date);
+    });
   };
 
   const getSelectedDateEvents = () => {
@@ -113,11 +113,11 @@ const Planejamento: React.FC = () => {
     today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
     return events
       .filter(event => {
-        const eventDate = new Date(event.date);
+        const eventDate = new Date(event.date + 'T00:00:00');
         eventDate.setHours(0, 0, 0, 0);
         return eventDate >= today;
       })
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      .sort((a, b) => new Date(a.date + 'T00:00:00').getTime() - new Date(b.date + 'T00:00:00').getTime())
       .slice(0, 5);
   };
 
@@ -127,12 +127,12 @@ const Planejamento: React.FC = () => {
     
     return events
       .filter(event => {
-        const eventDateTime = new Date(`${event.date}T${event.time}`);
+        const eventDateTime = new Date(event.date + 'T' + event.time);
         return eventDateTime >= now;
       })
       .sort((a, b) => {
-        const dateTimeA = new Date(`${a.date}T${a.time}`);
-        const dateTimeB = new Date(`${b.date}T${b.time}`);
+        const dateTimeA = new Date(a.date + 'T' + a.time);
+        const dateTimeB = new Date(b.date + 'T' + b.time);
         return dateTimeA.getTime() - dateTimeB.getTime();
       })[0];
   };
@@ -364,7 +364,7 @@ const Planejamento: React.FC = () => {
                         <div className="flex items-center space-x-4 text-sm text-gray-500">
                           <div className="flex items-center space-x-1">
                             <Clock className="w-4 h-4" />
-                            <span>{event.time}</span>
+                            <span>{new Date(event.date + 'T00:00:00').toLocaleDateString('pt-BR')}</span>
                           </div>
                           {event.assigned_to && (
                             <div className="flex items-center space-x-1">
@@ -453,7 +453,7 @@ const Planejamento: React.FC = () => {
                       <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
                         <div className="flex items-center space-x-1">
                           <Calendar className="w-4 h-4" />
-                          <span>{new Date(event.date).toLocaleDateString('pt-BR')}</span>
+                          <span>{new Date(event.date + 'T00:00:00').toLocaleDateString('pt-BR')}</span>
                         </div>
                         <div className="flex items-center space-x-1">
                           <Clock className="w-4 h-4" />
