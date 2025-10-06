@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, SquareCheck as CheckSquare, Square, Trash2, Hop as Home, Bed, ChefHat, Bath, Building, Trees, Sunset, Car, X, Edit2 } from 'lucide-react';
+import { Plus, SquareCheck as CheckSquare, Square, Trash2, Hop as Home, Bed, ChefHat, Bath, Building, Trees, Sunset, Car, X, CreditCard as Edit2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Task, CustomRoom } from '../types';
